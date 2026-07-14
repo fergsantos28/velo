@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('webpapp deve estar online', async ({ page }) => {
+test('a webpapp deve estar online', async ({ page }) => {
   await page.goto('http://localhost:5173');
 
   // Expect a title "to contain" a substring.

@@ -6,6 +6,3 @@ test('webpapp deve estar online', async ({ page }) => {
   // Expect a title "to contain" a substring.
   await expect(page).toHaveTitle(/Velô by Papito/);
 });
-
-
-

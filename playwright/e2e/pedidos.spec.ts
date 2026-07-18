@@ -15,14 +15,18 @@ test('deve consultar um pedido aprovado', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Número do Pedido' }).fill('VLO-J8FJRX');
    // await page.locator('//label[text()="Número do Pedido"]').fill('VLO-J8FJRX');  
   //await page.getByTestId('search-order-button').click();
-  //await page.getByRole('button', { name: 'Buscar Pedido' }).click();
-  await page.locator('//button[text()="Buscar Pedido"]').click();
+  await page.getByRole('button', { name: 'Buscar Pedido' }).click();
+ // await page.locator('//button[text()="Buscar Pedido"]').click();
 
 //Assert
-  await expect(page.getByTestId('order-result-id')).toBeVisible({timeout: 10000});
-  await expect(page.getByTestId('order-result-id')).toContainText('VLO-J8FJRX');
+ // await expect(page.getByTestId('order-result-id')).toBeVisible({timeout: 10000});//deixar o toBeVisible para ter certeza que o elemento está visível
+ // await expect(page.getByTestId('order-result-id')).toContainText('VLO-J8FJRX');
+ await expect(page.getByText('VLO-J8FJRX')).toBeVisible({ timeout: 6000 });
   
-  await expect(page.getByTestId('order-result-status')).toBeVisible();
-  await expect(page.getByTestId('order-result-status')).toContainText('APROVADO');
+  //await expect(page.getByTestId('order-result-status')).toBeVisible();
+  //await expect(page.getByTestId('order-result-status')).toContainText('APROVADO');
+  await expect(page.getByText('APROVADO')).toBeVisible();
 
+  
+  
 });

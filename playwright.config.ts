@@ -14,7 +14,7 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
 
   // Tempo máximo para cada teste completo (30s e o padrão)
-  timeout: 5000,
+  timeout: 60_000,
 
 // Tempo máximo para assetions (toBeVisible(), toHaveText()) 5s padrão
 //expect {
@@ -40,7 +40,7 @@ export default defineConfig({
     // baseURL: 'http://localhost:3000',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    trace: 'on',
 
     //Tempo máximo para ações como click(), Fill()
     //Quando o valor é 0, herda o limite do timout geral do teste

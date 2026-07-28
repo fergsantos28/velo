@@ -83,7 +83,7 @@ const OrderLookup = () => {
           <CardContent>
             <form onSubmit={handleSearch} className="space-y-4">
               <div>
-                <Label htmlFor="order-id">Número do Pedido</Label>
+                <Label htmlFor="order-id">Código do Pedido</Label>
                 <Input
                   id="order-id" 
                   name="orderId"            

@@ -28,7 +28,13 @@ export function createConfiguratorActions(page: Page) {
         },
 
 
+        async checkOptional(name: string | RegExp) {
+            await optionalCheckbox(name).check()
+        },
 
+        async uncheckOptional(name: string | RegExp) {
+            await optionalCheckbox(name).uncheck()
+        }
 
     }
 }

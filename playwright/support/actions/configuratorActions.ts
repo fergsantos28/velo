@@ -34,7 +34,16 @@ export function createConfiguratorActions(page: Page) {
 
         async uncheckOptional(name: string | RegExp) {
             await optionalCheckbox(name).uncheck()
-        }
+        },
+
+        async goToCheckout() {
+            await page.getByTestId('checkout-button').click()
+        },
+
+        async expectCheckoutPrice(price: string) {
+            const priceElement = page.getByTestId('summary-total-price')
+            await expect(priceElement).toHaveText(price)
+        },
 
     }
 }

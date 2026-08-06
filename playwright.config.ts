@@ -7,6 +7,13 @@ import { defineConfig, devices } from '@playwright/test';
 // import dotenv from 'dotenv';
 // import path from 'path';
 // dotenv.config({ path: path.resolve(__dirname, '.env') });
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -16,10 +23,10 @@ export default defineConfig({
   // Tempo máximo para cada teste completo (30s e o padrão)
   timeout: 60_000,
 
-// Tempo máximo para assetions (toBeVisible(), toHaveText()) 5s padrão
-//expect {
- // timeout:5000
-//};
+  // Tempo máximo para assetions (toBeVisible(), toHaveText()) 5s padrão
+  //expect {
+  // timeout:5000
+  //};
 
 
 
@@ -44,11 +51,11 @@ export default defineConfig({
 
     //Tempo máximo para ações como click(), Fill()
     //Quando o valor é 0, herda o limite do timout geral do teste
-    actionTimeout:5_000,
+    actionTimeout: 5_000,
 
-//Tempo máximo para navagações como goto(), waitForURL()
- //Quando o valor é 0, herda o limite do timout geral do teste
-    navigationTimeout:10_000
+    //Tempo máximo para navagações como goto(), waitForURL()
+    //Quando o valor é 0, herda o limite do timout geral do teste
+    navigationTimeout: 10_000
   },
 
   /* Configure projects for major browsers */

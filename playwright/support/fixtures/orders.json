@@ -1,0 +1,35 @@
+{
+  "aprovado": {
+    "number": "VLO-202608-00001",
+    "status": "APROVADO",
+    "color": "white",
+    "wheels": "sport",
+    "customer": {
+      "name": "Carlos Silva",
+      "email": "carlos.silva@email.com"
+    },
+    "payment": "Cartão de Crédito"
+  },
+  "reprovado": {
+    "number": "VLO-202608-00002",
+    "status": "REPROVADO",
+    "color": "black",
+    "wheels": "classic",
+    "customer": {
+      "name": "Ana Oliveira",
+      "email": "ana.oliveira@email.com"
+    },
+    "payment": "Boleto Bancário"
+  },
+  "em_analise": {
+    "number": "VLO-202608-00003",
+    "status": "EM_ANALISE",
+    "color": "red",
+    "wheels": "premium",
+    "customer": {
+      "name": "Lucas Santos",
+      "email": "lucas.santos@email.com"
+    },
+    "payment": "Pix"
+  }
+}

@@ -13,6 +13,15 @@ export type OrderDetails = {
 
 export function createOrderLookupActions(page: Page) {
   return {
+    elements: {
+      get searchButton() {
+        return page.getByRole('button', { name: 'Buscar Pedido' })
+      },
+      get orderInput() {
+        return page.getByRole('textbox', { name: 'Código do Pedido' })
+      },
+    },
+
     async open() {
       await page.goto('/')
       const title = page.getByTestId('hero-section').getByRole('heading')

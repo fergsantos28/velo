@@ -6,7 +6,7 @@ const corsHeaders = {
 };
 
 // URL da API de análise de crédito - configurável via variável de ambiente
-const API_CREDIT_ANALYSIS_URL = Deno.env.get('API_CREDIT_ANALYSIS_URL') || 
+const API_CREDIT_ANALYSIS_URL = Deno.env.get('API_CREDIT_ANALYSIS_URL') ||
   'https://uat-api.serasaexperian.com.br/consultas/v1/relato';
 
 // Gera token aleatório para simulação de autenticação
@@ -28,9 +28,9 @@ serve(async (req) => {
     if (!cpf) {
       return new Response(
         JSON.stringify({ error: 'CPF é obrigatório' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       );
     }
@@ -64,9 +64,9 @@ serve(async (req) => {
       console.error(`Credit API error: ${response.status} ${response.statusText}`);
       return new Response(
         JSON.stringify({ error: 'Erro na consulta de crédito' }),
-        { 
-          status: 502, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 502,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       );
     }
@@ -78,9 +78,9 @@ serve(async (req) => {
       console.error('Invalid response from credit API: missing score field');
       return new Response(
         JSON.stringify({ error: 'Resposta inválida da API de crédito' }),
-        { 
-          status: 502, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 502,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       );
     }
@@ -88,24 +88,24 @@ serve(async (req) => {
     console.log(`Credit analysis completed. Score: ${data.score}`);
 
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         status: data.status || 'Done',
-        score: data.score 
+        score: data.score
       }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
 
   } catch (error) {
     console.error('Credit analysis error:', error);
-    
+
     // Timeout ou falha de rede
     return new Response(
       JSON.stringify({ error: 'Falha na comunicação com serviço de crédito' }),
-      { 
-        status: 503, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      {
+        status: 503,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
   }

@@ -38,8 +38,8 @@ test.describe('Configuração do Veículo', () => {
         await app.configurator.uncheckOptional('Flux Capacitor')
         await app.configurator.expectPrice('R$ 40.000,00')
         
-        await app.configurator.goToCheckout()
-        await app.configurator.expectCheckoutPrice('R$ 40.000,00')
+        await app.checkout.goToCheckout()
+        await app.checkout.expectCheckoutPrice('R$ 40.000,00')
     })
 
 

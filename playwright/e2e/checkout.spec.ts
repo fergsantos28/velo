@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../support/fixtures';
 
 test.describe('Checkout - validações', () => {
     test.beforeEach(async ({ page }) => {
@@ -6,109 +6,132 @@ test.describe('Checkout - validações', () => {
         await expect(page.getByRole('heading', { name: 'Finalizar Pedido' })).toBeVisible();
     });
 
-    test('deve validar obrigatoriedade de todos os campos em branco', async ({ page }) => {
-        const submit = page.getByRole('button', { name: 'Confirmar Pedido' });
 
-        const nameAlert = page.locator('//label[normalize-space(.)="Nome"]/..//p');
-        const surnameAlert = page.locator('//label[normalize-space(.)="Sobrenome"]/..//p');
-        const emailAlert = page.locator('//label[normalize-space(.)="Email"]/..//p');
-        const phoneAlert = page.locator('//label[normalize-space(.)="Telefone"]/..//p');
-        const cpfAlert = page.locator('//label[normalize-space(.)="CPF"]/..//p');
-        const storeAlert = page.locator('//label[normalize-space(.)="Loja para Retirada"]/..//p');
-        const termsAlert = page.locator('//label[@for="terms"]/following-sibling::p');
+    test.describe('Validações de campos obrigatórios', () => {
+        test('deve validar obrigatoriedade de todos os campos em branco', async ({ page, app }) => {
+            const submit = page.getByRole('button', { name: 'Confirmar Pedido' });
 
-        // Act
-        await submit.click();
+            const nameAlert = page.locator('//label[normalize-space(.)="Nome"]/..//p');
+            const surnameAlert = page.locator('//label[normalize-space(.)="Sobrenome"]/..//p');
+            const emailAlert = page.locator('//label[normalize-space(.)="Email"]/..//p');
+            const phoneAlert = page.locator('//label[normalize-space(.)="Telefone"]/..//p');
+            const cpfAlert = page.locator('//label[normalize-space(.)="CPF"]/..//p');
+            const storeAlert = page.locator('//label[normalize-space(.)="Loja para Retirada"]/..//p');
+            const termsAlert = page.locator('//label[@for="terms"]/following-sibling::p');
 
-        // Assert
-        await expect(nameAlert).toHaveText('Nome deve ter pelo menos 2 caracteres');
-        await expect(surnameAlert).toHaveText('Sobrenome deve ter pelo menos 2 caracteres');
-        await expect(emailAlert).toHaveText('Email inválido');
-        await expect(phoneAlert).toHaveText('Telefone inválido');
-        await expect(cpfAlert).toHaveText('CPF inválido');
-        await expect(storeAlert).toHaveText('Selecione uma loja');
-        await expect(termsAlert).toHaveText('Aceite os termos');
+            // Act
+            await app.checkout.submit();
+
+            // Assert
+            await expect(nameAlert).toHaveText('Nome deve ter pelo menos 2 caracteres');
+            await expect(surnameAlert).toHaveText('Sobrenome deve ter pelo menos 2 caracteres');
+            await expect(emailAlert).toHaveText('Email inválido');
+            await expect(phoneAlert).toHaveText('Telefone inválido');
+            await expect(cpfAlert).toHaveText('CPF inválido');
+            await expect(storeAlert).toHaveText('Selecione uma loja');
+            await expect(termsAlert).toHaveText('Aceite os termos');
+        });
+
+        test('deve validar limite mínimo de caracteres para Nome e Sobrenome', async ({ page, app }) => {
+
+            const nameAlert = page.locator('//label[normalize-space(.)="Nome"]/..//p');
+            const surnameAlert = page.locator('//label[normalize-space(.)="Sobrenome"]/..//p');
+
+            const customer = {
+                name: 'A',
+                lastname: 'B',
+                email: 'teste@teste.com',
+                document: '00000014141',
+                phone: '(11) 99999-9999'
+            }
+
+            // Arrange
+            await app.checkout.fillCustumerlData(customer);
+            await app.checkout.selectStore('Velô Paulista')
+            await app.checkout.acceptTerms()
+
+            // Act
+            await app.checkout.submit()
+
+            // Assert
+            await expect(nameAlert).toHaveText('Nome deve ter pelo menos 2 caracteres');
+            await expect(surnameAlert).toHaveText('Sobrenome deve ter pelo menos 2 caracteres');
+        });
+
+        test('deve exibir erro para e-mail com formato inválido', async ({ page, app }) => {
+            const emailAlert = page.locator('//label[normalize-space(.)="Email"]/..//p');
+
+
+            // Arrange
+            const customer = {
+                name: 'Fernando',
+                lastname: 'Teste',
+                email: 'test@.com',
+                document: '00000014141',
+                phone: '(11) 99999-9999'
+            }
+
+            // Arrange
+            await app.checkout.fillCustumerlData(customer);
+            await app.checkout.selectStore('Velô Paulista');
+            await app.checkout.acceptTerms();
+
+            // Act
+            await app.checkout.submit();
+
+            // Assert
+            await expect(emailAlert).toHaveText('Email inválido');
+        });
+
+        test('deve exibir erro para CPF inválido', async ({ page, app }) => {
+            const cpfAlert = page.locator('//label[normalize-space(.)="CPF"]/..//p');
+
+            // Arrange
+            const customer = {
+                name: 'Fernando',
+                lastname: 'Teste',
+                email: 'teste@teste.com',
+                document: '000000199999',
+                phone: '(11) 99999-9999'
+            }
+
+            // Arrange
+            await app.checkout.fillCustumerlData(customer);
+            await app.checkout.selectStore('Velô Paulista');
+            await app.checkout.acceptTerms();
+
+            // Act
+            await app.checkout.submit();
+
+            // Assert
+            await expect(cpfAlert).toHaveText('CPF inválido');
+        });
+
+        test('deve exigir o aceite dos termos ao finalizar com dados válidos', async ({ page, app }) => {
+            const termsAlert = page.locator('//label[@for="terms"]/following-sibling::p');
+
+            // Arrange
+            const customer = {
+                name: 'Fernando',
+                lastname: 'Teste',
+                email: 'teste@teste.com',
+                document: '00000014141',
+                phone: '(11) 99999-9999'
+            }
+
+            // Arrange
+            await app.checkout.fillCustumerlData(customer);
+            await app.checkout.selectStore('Velô Paulista');
+
+            await expect(app.checkout.elements.terms).not.toBeChecked();
+
+            // Act
+            await app.checkout.submit();
+
+            // Assert
+            await expect(termsAlert).toHaveText('Aceite os termos');
+        });
+
     });
 
-    test('deve validar limite mínimo de caracteres para Nome e Sobrenome', async ({ page }) => {
-        const nome = page.getByTestId('checkout-name');
-        const sobrenome = page.getByTestId('checkout-surname');
-        const submit = page.getByRole('button', { name: 'Confirmar Pedido' });
-
-        const nameAlert = page.locator('//label[normalize-space(.)="Nome"]/..//p');
-        const surnameAlert = page.locator('//label[normalize-space(.)="Sobrenome"]/..//p');
-
-        // Arrange
-        await nome.fill('A');
-        await sobrenome.fill('B');
-
-        // Act
-        await submit.click();
-
-        // Assert
-        await expect(nameAlert).toHaveText('Nome deve ter pelo menos 2 caracteres');
-        await expect(surnameAlert).toHaveText('Sobrenome deve ter pelo menos 2 caracteres');
-    });
-
-    test('deve exibir erro para e-mail com formato inválido', async ({ page }) => {
-        const nome = page.getByTestId('checkout-name');
-        const sobrenome = page.getByTestId('checkout-surname');
-        const email = page.getByTestId('checkout-email');
-        const submit = page.getByRole('button', { name: 'Confirmar Pedido' });
-
-        const emailAlert = page.locator('//label[normalize-space(.)="Email"]/..//p');
-
-        // Arrange
-        await nome.fill('João');
-        await sobrenome.fill('Silva');
-        await email.fill('cliente@.com');
-
-        // Act
-        await submit.click();
-
-        // Assert
-        await expect(emailAlert).toHaveText('Email inválido');
-    });
-
-    test('deve exibir erro para CPF inválido', async ({ page }) => {
-        const cpf = page.getByTestId('checkout-cpf');
-        const submit = page.getByRole('button', { name: 'Confirmar Pedido' });
-
-        const cpfAlert = page.locator('//label[normalize-space(.)="CPF"]/..//p');
-
-        // Arrange
-        await cpf.fill('123');
-
-        // Act
-        await submit.click();
-
-        // Assert
-        await expect(cpfAlert).toHaveText('CPF inválido');
-    });
-
-    test('deve exigir o aceite dos termos ao finalizar com dados válidos', async ({ page }) => {
-        const email = page.getByTestId('checkout-email');
-        const telefone = page.getByTestId('checkout-phone');
-        const cpf = page.getByTestId('checkout-cpf');
-        const loja = page.getByTestId('checkout-store');
-        const termos = page.getByTestId('checkout-terms');
-        const submit = page.getByRole('button', { name: 'Confirmar Pedido' });
-
-        const termsAlert = page.locator('//label[@for="terms"]/following-sibling::p');
-
-        // Arrange
-        await email.fill('joao.silva@email.com');
-        await telefone.fill('(11) 99999-9999');
-        await cpf.fill('529.982.247-25');
-        await loja.click();
-        await page.getByRole('option', { name: /Velô Paulista/ }).click();
-
-        await expect(termos).not.toBeChecked(); // Premissa inicial
-
-        // Act
-        await submit.click();
-
-        // Assert
-        await expect(termsAlert).toHaveText('Aceite os termos');
-    });
 });

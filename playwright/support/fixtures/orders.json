@@ -1,35 +1,44 @@
 {
   "aprovado": {
-    "number": "VLO-202608-00001",
+    "number": "VLO-SE4R01",
     "status": "APROVADO",
-    "color": "white",
-    "wheels": "sport",
+    "color": "Glacier Blue",
+    "wheels": "aero Wheels",
     "customer": {
-      "name": "Carlos Silva",
-      "email": "carlos.silva@email.com"
+      "name": "Fernando ",
+      "email": "teste@velo.dev",
+      "document": "780.228.290-05",
+      "phone": "(11) 99999-9999"
     },
-    "payment": "Cartão de Crédito"
+    "payment": "À Vista",
+    "total_price": "40000"
   },
   "reprovado": {
-    "number": "VLO-202608-00002",
+    "number": "VLO-SE4R02",
     "status": "REPROVADO",
-    "color": "black",
-    "wheels": "classic",
+    "color": "Midnight Black",
+    "wheels": "sport Wheels",
     "customer": {
-      "name": "Ana Oliveira",
-      "email": "ana.oliveira@email.com"
+      "name": "Steve Jobs",
+      "email": "jobs@apple.com",
+      "document": "780.228.290-05",
+      "phone": "(11) 99999-9999"
     },
-    "payment": "Boleto Bancário"
+    "payment": "À Vista",
+    "total_price": "40000"
   },
   "em_analise": {
-    "number": "VLO-202608-00003",
+    "number": "VLO-SE4R03",
     "status": "EM_ANALISE",
-    "color": "red",
-    "wheels": "premium",
+    "color": "Lunar White",
+    "wheels": "aero Wheels",
     "customer": {
-      "name": "Lucas Santos",
-      "email": "lucas.santos@email.com"
+      "name": "João da Silva",
+      "email": "joao@velo.dev",
+      "document": "780.228.290-05",
+      "phone": "(11) 99999-9999"
     },
-    "payment": "Pix"
+    "payment": "À Vista",
+    "total_price": "40000"
   }
 }

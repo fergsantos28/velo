@@ -27,14 +27,18 @@ export function createConfiguratorActions(page: Page) {
             await expect(carImage).toHaveAttribute('src', src)
         },
 
-
         async checkOptional(name: string | RegExp) {
+            await expect(optionalCheckbox(name)).toBeVisible()
             await optionalCheckbox(name).check()
         },
 
         async uncheckOptional(name: string | RegExp) {
+            await expect(optionalCheckbox(name)).toBeVisible()
             await optionalCheckbox(name).uncheck()
-        }
+        },
 
+        async finishConfigurator() {
+            await page.getByRole('button', { name: 'Monte o Seu' }).click()
+        },
     }
 }

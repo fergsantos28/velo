@@ -1,14 +1,13 @@
 import { Page, expect } from '@playwright/test'
 
 export function createCheckoutActions(page: Page) {
-    return {
-        async goToFinishi() {
-            await page.getByTestId('checkout-button').click()
-        },
+  return {
+    async expectLoaded() {
+      await expect(page.getByRole('heading', { name: 'Finalizar Pedido' })).toBeVisible()
+    },
 
-        async expectCheckoutPrice(price: string) {
-            const priceElement = page.getByTestId('summary-total-price')
-            await expect(priceElement).toHaveText(price)
-        },
-    }
+    async expectSummaryTotal(price: string) {
+      await expect(page.getByTestId('summary-total-price')).toHaveText(price)
+    },
+  }
 }

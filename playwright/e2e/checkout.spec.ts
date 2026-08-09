@@ -1,33 +1,33 @@
 import { test, expect } from '../support/fixtures';
 
 test.describe('Checkout - validações', () => {
-    test.beforeEach(async ({ page }) => {
-        await page.goto('/order');
-        await expect(page.getByRole('heading', { name: 'Finalizar Pedido' })).toBeVisible();
-    });
 
 
     test.describe('Validações de campos obrigatórios', () => {
+
+        let alerts: any
+
+        test.beforeEach(async ({ page, app }) => {
+            await page.goto('/order')
+            await expect(page.getByRole('heading', { name: 'Finalizar Pedido' })).toBeVisible()
+
+            alerts = app.checkout.elements.alerts
+        })
+
+
         test('deve validar obrigatoriedade de todos os campos em branco', async ({ page, app }) => {
-            const nameAlert = page.getByTestId('error-name')
-            const surnameAlert = page.getByTestId('error-lastname');
-            const emailAlert = page.getByTestId('error-email');
-            const phoneAlert = page.getByTestId('error-phone');
-            const cpfAlert = page.getByTestId('error-document');
-            const storeAlert = page.getByTestId('error-store');
-            const termsAlert = page.getByTestId('error-terms');
 
             // Act
             await app.checkout.submit();
 
             // Assert
-            await expect(nameAlert).toHaveText('Nome deve ter pelo menos 2 caracteres');
-            await expect(surnameAlert).toHaveText('Sobrenome deve ter pelo menos 2 caracteres');
-            await expect(emailAlert).toHaveText('Email inválido');
-            await expect(phoneAlert).toHaveText('Telefone inválido');
-            await expect(cpfAlert).toHaveText('CPF inválido');
-            await expect(storeAlert).toHaveText('Selecione uma loja');
-            await expect(termsAlert).toHaveText('Aceite os termos');
+            await expect(alerts.name).toHaveText('Nome deve ter pelo menos 2 caracteres');
+            await expect(alerts.lastname).toHaveText('Sobrenome deve ter pelo menos 2 caracteres');
+            await expect(alerts.email).toHaveText('Email inválido');
+            await expect(alerts.phone).toHaveText('Telefone inválido');
+            await expect(alerts.document).toHaveText('CPF inválido');
+            await expect(alerts.store).toHaveText('Selecione uma loja');
+            await expect(alerts.terms).toHaveText('Aceite os termos')
         });
 
         test('deve validar limite mínimo de caracteres para Nome e Sobrenome', async ({ page, app }) => {
@@ -129,7 +129,47 @@ test.describe('Checkout - validações', () => {
             // Assert
             await expect(termsAlert).toHaveText('Aceite os termos');
         });
-
     });
 
-});
+
+    test.describe('Pagamento e Confirmação', () => {
+
+        test('deve criar um pedido com sucesso para pagamento à vista', async ({ page, app }) => {
+            const customer = {
+                name: 'Fernando',
+                lastname: 'Papito',
+                email: 'papito@teste.com',
+                document: '05366127068',
+                phone: '(11) 99999-9999',
+                store: 'Velô Paulista',
+                paymentMethod: 'À Vista',
+                totalPrice: 'R$ 40.000,00',
+
+            }
+
+            // 1. Inicia na página inicial e navega para o configurador
+            await page.goto('/');
+            await page.getByRole('link', { name: /Configure o Seu/i }).first().click();
+
+            // 2. Configuração (mantém a opção padrão e avança)
+            await app.configurator.expectPrice('R$ 40.000,00');
+            await app.configurator.finishConfigurator();
+
+            // 3. Checkout
+            await app.checkout.expectLoaded();
+            await app.checkout.fillCustomerlData(customer);
+            await app.checkout.selectStore('Velô Paulista');
+            await app.checkout.selectPaymentMethod('À Vista');
+            await app.checkout.expectSummaryTotal('R$ 40.000,00');
+            await app.checkout.acceptTerms();
+
+            // Finaliza o pedido
+            await app.checkout.submit();
+
+            // 4. Validação de sucesso
+            await expect(page).toHaveURL(/\/success/);
+            await expect(page.getByRole('heading', { name: 'Pedido Aprovado!' })).toBeVisible();
+        })
+    })
+})
+

@@ -9,15 +9,13 @@ test.describe('Checkout - validações', () => {
 
     test.describe('Validações de campos obrigatórios', () => {
         test('deve validar obrigatoriedade de todos os campos em branco', async ({ page, app }) => {
-            const submit = page.getByRole('button', { name: 'Confirmar Pedido' });
-
-            const nameAlert = page.locator('//label[normalize-space(.)="Nome"]/..//p');
-            const surnameAlert = page.locator('//label[normalize-space(.)="Sobrenome"]/..//p');
-            const emailAlert = page.locator('//label[normalize-space(.)="Email"]/..//p');
-            const phoneAlert = page.locator('//label[normalize-space(.)="Telefone"]/..//p');
-            const cpfAlert = page.locator('//label[normalize-space(.)="CPF"]/..//p');
-            const storeAlert = page.locator('//label[normalize-space(.)="Loja para Retirada"]/..//p');
-            const termsAlert = page.locator('//label[@for="terms"]/following-sibling::p');
+            const nameAlert = page.getByTestId('error-name')
+            const surnameAlert = page.getByTestId('error-lastname');
+            const emailAlert = page.getByTestId('error-email');
+            const phoneAlert = page.getByTestId('error-phone');
+            const cpfAlert = page.getByTestId('error-document');
+            const storeAlert = page.getByTestId('error-store');
+            const termsAlert = page.getByTestId('error-terms');
 
             // Act
             await app.checkout.submit();
@@ -34,8 +32,8 @@ test.describe('Checkout - validações', () => {
 
         test('deve validar limite mínimo de caracteres para Nome e Sobrenome', async ({ page, app }) => {
 
-            const nameAlert = page.locator('//label[normalize-space(.)="Nome"]/..//p');
-            const surnameAlert = page.locator('//label[normalize-space(.)="Sobrenome"]/..//p');
+            const nameAlert = page.getByTestId('error-name');
+            const surnameAlert = page.getByTestId('error-lastname');
 
             const customer = {
                 name: 'A',
@@ -46,7 +44,7 @@ test.describe('Checkout - validações', () => {
             }
 
             // Arrange
-            await app.checkout.fillCustumerlData(customer);
+            await app.checkout.fillCustomerlData(customer);
             await app.checkout.selectStore('Velô Paulista')
             await app.checkout.acceptTerms()
 
@@ -59,7 +57,7 @@ test.describe('Checkout - validações', () => {
         });
 
         test('deve exibir erro para e-mail com formato inválido', async ({ page, app }) => {
-            const emailAlert = page.locator('//label[normalize-space(.)="Email"]/..//p');
+            const emailAlert = page.getByTestId('error-email');
 
 
             // Arrange
@@ -72,7 +70,7 @@ test.describe('Checkout - validações', () => {
             }
 
             // Arrange
-            await app.checkout.fillCustumerlData(customer);
+            await app.checkout.fillCustomerlData(customer);
             await app.checkout.selectStore('Velô Paulista');
             await app.checkout.acceptTerms();
 
@@ -84,7 +82,7 @@ test.describe('Checkout - validações', () => {
         });
 
         test('deve exibir erro para CPF inválido', async ({ page, app }) => {
-            const cpfAlert = page.locator('//label[normalize-space(.)="CPF"]/..//p');
+            const cpfAlert = page.getByTestId('error-document');
 
             // Arrange
             const customer = {
@@ -96,7 +94,7 @@ test.describe('Checkout - validações', () => {
             }
 
             // Arrange
-            await app.checkout.fillCustumerlData(customer);
+            await app.checkout.fillCustomerlData(customer);
             await app.checkout.selectStore('Velô Paulista');
             await app.checkout.acceptTerms();
 
@@ -108,7 +106,7 @@ test.describe('Checkout - validações', () => {
         });
 
         test('deve exigir o aceite dos termos ao finalizar com dados válidos', async ({ page, app }) => {
-            const termsAlert = page.locator('//label[@for="terms"]/following-sibling::p');
+            const termsAlert = page.getByTestId('error-terms');
 
             // Arrange
             const customer = {
@@ -120,7 +118,7 @@ test.describe('Checkout - validações', () => {
             }
 
             // Arrange
-            await app.checkout.fillCustumerlData(customer);
+            await app.checkout.fillCustomerlData(customer);
             await app.checkout.selectStore('Velô Paulista');
 
             await expect(app.checkout.elements.terms).not.toBeChecked();

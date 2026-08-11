@@ -1,4 +1,5 @@
 import { test, expect } from '../support/fixtures';
+import { deleteOrderCheckout } from '../support/databse/orderRepository';
 
 test.describe('Checkout - validações', () => {
 
@@ -137,8 +138,8 @@ test.describe('Checkout - validações', () => {
         test('deve criar um pedido com sucesso para pagamento à vista', async ({ page, app }) => {
             const customer = {
                 name: 'Fernando',
-                lastname: 'Papito',
-                email: 'papito@teste.com',
+                lastname: 'Silva',
+                email: 'MelhorQA@teste.com',
                 document: '05366127068',
                 phone: '(11) 99999-9999',
                 store: 'Velô Paulista',
@@ -147,29 +148,33 @@ test.describe('Checkout - validações', () => {
 
             }
 
-            // 1. Inicia na página inicial e navega para o configurador
-            await page.goto('/');
-            await page.getByRole('link', { name: /Configure o Seu/i }).first().click();
+            await deleteOrderCheckout(customer.email, customer.document)
+            
+                // 1. Inicia na página inicial e navega para o configurador
+                await page.goto('/');
+                await page.getByRole('link', { name: /Configure o Seu/i }).first().click();
 
-            // 2. Configuração (mantém a opção padrão e avança)
-            await app.configurator.expectPrice('R$ 40.000,00');
-            await app.configurator.finishConfigurator();
+                // 2. Configuração (mantém a opção padrão e avança)
+                await app.configurator.expectPrice('R$ 40.000,00');
+                await app.configurator.finishConfigurator();
 
-            // 3. Checkout
-            await app.checkout.expectLoaded();
-            await app.checkout.fillCustomerlData(customer);
-            await app.checkout.selectStore('Velô Paulista');
-            await app.checkout.selectPaymentMethod('À Vista');
-            await app.checkout.expectSummaryTotal('R$ 40.000,00');
-            await app.checkout.acceptTerms();
+                // 3. Checkout
+                await app.checkout.expectLoaded();
+                await app.checkout.fillCustomerlData(customer);
+                await app.checkout.selectStore('Velô Paulista');
+                await app.checkout.selectPaymentMethod('À Vista');
+                await app.checkout.expectSummaryTotal('R$ 40.000,00');
+                await app.checkout.acceptTerms();
 
-            // Finaliza o pedido
-            await app.checkout.submit();
+                // Finaliza o pedido
+                await app.checkout.submit();
 
-            // 4. Validação de sucesso
-            await expect(page).toHaveURL(/\/success/);
-            await expect(page.getByRole('heading', { name: 'Pedido Aprovado!' })).toBeVisible();
+                // 4. Validação de sucesso
+                await expect(page).toHaveURL(/\/success/);
+                await expect(page.getByRole('heading', { name: 'Pedido Aprovado!' })).toBeVisible();
+            
+               
+            
         })
     })
 })
-

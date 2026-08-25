@@ -149,32 +149,128 @@ test.describe('Checkout - validações', () => {
             }
 
             await deleteOrderCheckout(customer.email, customer.document)
-            
-                // 1. Inicia na página inicial e navega para o configurador
-                await page.goto('/');
-                await page.getByRole('link', { name: /Configure o Seu/i }).first().click();
 
-                // 2. Configuração (mantém a opção padrão e avança)
-                await app.configurator.expectPrice('R$ 40.000,00');
-                await app.configurator.finishConfigurator();
+            // 1. Inicia na página inicial e navega para o configurador
+            await page.goto('/');
+            await page.getByRole('link', { name: /Configure o Seu/i }).first().click();
 
-                // 3. Checkout
-                await app.checkout.expectLoaded();
-                await app.checkout.fillCustomerlData(customer);
-                await app.checkout.selectStore('Velô Paulista');
-                await app.checkout.selectPaymentMethod('À Vista');
-                await app.checkout.expectSummaryTotal('R$ 40.000,00');
-                await app.checkout.acceptTerms();
+            // 2. Configuração (mantém a opção padrão e avança)
+            await app.configurator.expectPrice('R$ 40.000,00');
+            await app.configurator.finishConfigurator();
 
-                // Finaliza o pedido
-                await app.checkout.submit();
+            // 3. Checkout
+            await app.checkout.expectLoaded();
+            await app.checkout.fillCustomerlData(customer);
+            await app.checkout.selectStore('Velô Paulista');
+            await app.checkout.selectPaymentMethod('À Vista');
+            await app.checkout.expectSummaryTotal('R$ 40.000,00');
+            await app.checkout.acceptTerms();
 
-                // 4. Validação de sucesso
-                await expect(page).toHaveURL(/\/success/);
-                await expect(page.getByRole('heading', { name: 'Pedido Aprovado!' })).toBeVisible();
-            
-               
-            
+            // Finaliza o pedido
+            await app.checkout.submit();
+
+            // 4. Validação de sucesso
+            await expect(page).toHaveURL(/\/success/);
+            await expect(page.getByRole('heading', { name: 'Pedido Aprovado!' })).toBeVisible();
+
+
+        })
+
+        test('Deve aprovar automaticamente o financiamento quando o score do CPF for maior que 700.', async ({ page, app }) => {
+            const customer = {
+                name: 'Nome sujo',
+                lastname: 'silva',
+                email: 'teste@teste.com',
+                document: '39428928046',
+                phone: '(11) 99999-9999',
+                store: 'Velô Paulista',
+                paymentMethod: 'Financiamento',
+                totalPrice: 'R$ 40.000,00',
+
+            }
+
+            await deleteOrderCheckout(customer.email, customer.document)
+
+
+            await page.route('**/functions/v1/credit-analysis', async route => {
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({
+                        status: 'Done',
+                        score: 710,
+                    }),
+                });
+            });
+
+
+            // 1. Inicia na página inicial e navega para o configurador
+            await page.goto('/');
+            await page.getByRole('link', { name: /Configure o Seu/i }).first().click();
+
+            // 2. Configuração (mantém a opção padrão e avança)
+            await app.configurator.expectPrice(customer.totalPrice);
+            await app.configurator.finishConfigurator();
+
+            // 3. Checkout
+            await app.checkout.expectLoaded();
+            await app.checkout.fillCustomerlData(customer);
+            await app.checkout.selectStore(customer.store);
+            await app.checkout.selectPaymentMethod(customer.paymentMethod);
+            // await app.checkout.expectSummaryTotal(customer.totalPrice);
+            await app.checkout.acceptTerms();
+
+            // Finaliza o pedido
+            await app.checkout.submit();
+
+            // 4. Validação de sucesso
+            await expect(page).toHaveURL(/\/success/);
+            await expect(page.getByRole('heading', { name: 'Pedido Aprovado!' })).toBeVisible();
+        })
+
+        test('CT07 - deve deixar o pedido em análise quando o score do CPF estiver entre 501 e 700', async ({ page, app }) => {
+            const customer = {
+                name: 'Fernando',
+                lastname: 'Analise',
+                email: 'ct07.analise@teste.com',
+                document: '39428928046',
+                phone: '(11) 99999-9999',
+                store: 'Velô Paulista',
+                paymentMethod: 'Financiamento',
+                totalPrice: 'R$ 40.000,00',
+            }
+
+            await deleteOrderCheckout(customer.email, customer.document)
+
+            await page.route('**/functions/v1/credit-analysis', async route => {
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({
+                        status: 'Done',
+                        score: 600,
+                    }),
+                })
+            })
+
+            await page.goto('/')
+            await page.getByRole('link', { name: /Configure Agora/i }).click()
+      
+            await app.configurator.expectPrice(customer.totalPrice)
+            await app.configurator.finishConfigurator()
+            await app.checkout.expectLoaded()
+      
+            await app.checkout.fillCustomerlData(customer)
+            await app.checkout.selectStore(customer.store)
+      
+            // Act
+            await app.checkout.selectPaymentMethod(customer.paymentMethod)
+            await app.checkout.acceptTerms()
+            await app.checkout.submit()
+      
+            // Assert
+            await expect(page).toHaveURL(/\/success/)
+            await expect(page.getByRole('heading', { name: 'Pedido em Análise!' })).toBeVisible()
         })
     })
 })

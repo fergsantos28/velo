@@ -1,8 +1,20 @@
 import { Page, expect } from '@playwright/test'
 
 export function createCheckoutActions(page: Page) {
-
   const terms = page.getByTestId('checkout-terms')
+  const fillCustomerData = async (data: {
+    name: string
+    lastname: string
+    email: string
+    phone: string
+    document: string
+  }) => {
+    await page.getByTestId('checkout-name').fill(data.name)
+    await page.getByTestId('checkout-lastname').fill(data.lastname)
+    await page.getByTestId('checkout-email').fill(data.email)
+    await page.getByTestId('checkout-phone').fill(data.phone)
+    await page.getByTestId('checkout-document').fill(data.document)
+  }
 
   const alerts = {
     name: page.getByTestId('error-name'),
@@ -14,9 +26,7 @@ export function createCheckoutActions(page: Page) {
     terms: page.getByTestId('error-terms')
   }
 
-
   return {
-
     elements: {
       terms,
       alerts
@@ -30,6 +40,16 @@ export function createCheckoutActions(page: Page) {
       await expect(page.getByTestId('summary-total-price')).toHaveText(price)
     },
 
+    async fillCustomerData(data: {
+      name: string
+      lastname: string
+      email: string
+      phone: string
+      document: string
+    }) {
+      await fillCustomerData(data)
+    },
+
     async fillCustomerlData(data: {
       name: string
       lastname: string
@@ -37,11 +57,7 @@ export function createCheckoutActions(page: Page) {
       phone: string
       document: string
     }) {
-      await page.getByTestId('checkout-name').fill(data.name)
-      await page.getByTestId('checkout-lastname').fill(data.lastname)
-      await page.getByTestId('checkout-email').fill(data.email)
-      await page.getByTestId('checkout-phone').fill(data.phone)
-      await page.getByTestId('checkout-document').fill(data.document)
+      await fillCustomerData(data)
     },
 
     async selectStore(storeName: string) {
@@ -65,10 +81,27 @@ export function createCheckoutActions(page: Page) {
       await page.getByRole('button', { name: 'Confirmar Pedido' }).click()
     },
 
-    async expectResult(status: string) {
+    async mockCreditAnalysis(score: number) {
+      await page.route('**/functions/v1/credit-analysis', async route => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            status: 'Done',
+            score,
+          }),
+        })
+      })
+    },
+
+    async startPurchaseFromHome(linkName: string | RegExp = /Configure (o Seu|Agora)/i) {
+      await page.goto('/')
+      await page.getByRole('link', { name: linkName }).first().click()
+    },
+
+    async expectResult(status: string | RegExp) {
       await expect(page).toHaveURL(/\/success/)
       await expect(page.getByRole('heading', { name: status })).toBeVisible()
     }
-
   }
 }

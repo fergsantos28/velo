@@ -1,6 +1,8 @@
 import { test, expect } from '../support/fixtures'
 import { deleteOrderCheckout } from '../support/databse/orderRepository'
 
+import { mockCreditAnalysis } from '../support/mock.api'
+
 test.describe('Checkout - validações', () => {
   test.describe('Validações de campos obrigatórios', () => {
     test.beforeEach(async ({ page, app }) => {
@@ -95,6 +97,11 @@ test.describe('Checkout - validações', () => {
   })
 
   test.describe('Pagamento e Confirmação', () => {
+
+    test.beforeEach(async ({ app }) => {
+      await app.checkout.startPurchaseFromHome()
+    })
+
     test('deve criar um pedido com sucesso para pagamento à vista', async ({ app }) => {
       const customer = {
         name: 'Fernando',
@@ -109,7 +116,7 @@ test.describe('Checkout - validações', () => {
 
       await deleteOrderCheckout(customer.email, customer.document)
 
-      await app.checkout.startPurchaseFromHome()
+
       await app.configurator.expectPrice(customer.totalPrice)
       await app.configurator.finishConfigurator()
 
@@ -138,9 +145,9 @@ test.describe('Checkout - validações', () => {
 
       await deleteOrderCheckout(customer.email, customer.document)
 
-      await app.checkout.mockCreditAnalysis(710)
+      await app.mock.creditAnalysis(710)
 
-      await app.checkout.startPurchaseFromHome()
+
       await app.configurator.expectPrice(customer.totalPrice)
       await app.configurator.finishConfigurator()
 
@@ -150,6 +157,7 @@ test.describe('Checkout - validações', () => {
       await app.checkout.selectPaymentMethod(customer.paymentMethod)
       await app.checkout.acceptTerms()
       await app.checkout.submit()
+
       await app.checkout.expectResult('Pedido Aprovado!')
     })
 
@@ -167,9 +175,8 @@ test.describe('Checkout - validações', () => {
 
       await deleteOrderCheckout(customer.email, customer.document)
 
-      await app.checkout.mockCreditAnalysis(600)
+      await app.mock.creditAnalysis(600)
 
-      await app.checkout.startPurchaseFromHome(/Configure Agora/i)
       await app.configurator.expectPrice(customer.totalPrice)
       await app.configurator.finishConfigurator()
 
@@ -196,8 +203,8 @@ test.describe('Checkout - validações', () => {
 
       await deleteOrderCheckout(customer.email, customer.document)
 
-      await app.checkout.mockCreditAnalysis(500)
-      await app.checkout.startPurchaseFromHome(/Configure Agora/i)
+      await app.mock.creditAnalysis(500)
+
       await app.configurator.expectPrice(customer.totalPrice)
       await app.configurator.finishConfigurator()
 
@@ -207,6 +214,7 @@ test.describe('Checkout - validações', () => {
       await app.checkout.selectPaymentMethod(customer.paymentMethod)
       await app.checkout.acceptTerms()
       await app.checkout.submit()
+
       await app.checkout.expectResult(/Pedido Reprovado/i)
     })
 
@@ -225,8 +233,7 @@ test.describe('Checkout - validações', () => {
 
       await deleteOrderCheckout(customer.email, customer.document)
 
-      await app.checkout.mockCreditAnalysis(500)
-      await app.checkout.startPurchaseFromHome(/Configure Agora/i)
+      await app.mock.creditAnalysis(500)
       await app.configurator.expectPrice(customer.totalPrice)
       await app.configurator.finishConfigurator()
 
@@ -237,7 +244,7 @@ test.describe('Checkout - validações', () => {
       await app.checkout.fillDownPayment(customer.downPayment)
       await app.checkout.acceptTerms()
       await app.checkout.submit()
-      await app.checkout.expectResult(/Pedido Reprovado/i)
+      await app.checkout.expectResult('Pedido Reprovado!')
     })
 
     test('deve aprovar o crédito quando o score do CPF for menor ou igual a 500 no financiamento com entrada igual que 50%', async ({ app }) => {
@@ -255,8 +262,8 @@ test.describe('Checkout - validações', () => {
 
       await deleteOrderCheckout(customer.email, customer.document)
 
-      await app.checkout.mockCreditAnalysis(450)
-      await app.checkout.startPurchaseFromHome(/Configure Agora/i)
+      await app.mock.creditAnalysis(450)
+      await app.checkout.startPurchaseFromHome(/Configure o Seu/i)
       await app.configurator.expectPrice(customer.totalPrice)
       await app.configurator.finishConfigurator()
 
@@ -267,7 +274,7 @@ test.describe('Checkout - validações', () => {
       await app.checkout.fillDownPayment(customer.downPayment)
       await app.checkout.acceptTerms()
       await app.checkout.submit()
-      await app.checkout.expectResult(/Pedido Aprovado/i)
+      await app.checkout.expectResult('Pedido Aprovado!')
     })
 
     test('deve aprovar o crédito quando o score do CPF for menor ou igual a 500 no financiamento com entrada maior que 50%', async ({ app }) => {
@@ -285,7 +292,8 @@ test.describe('Checkout - validações', () => {
 
       await deleteOrderCheckout(customer.email, customer.document)
 
-      await app.checkout.mockCreditAnalysis(300)
+      await app.mock.creditAnalysis(300)
+
       await app.checkout.startPurchaseFromHome(/Configure Agora/i)
       await app.configurator.expectPrice(customer.totalPrice)
       await app.configurator.finishConfigurator()
@@ -297,7 +305,8 @@ test.describe('Checkout - validações', () => {
       await app.checkout.fillDownPayment(customer.downPayment)
       await app.checkout.acceptTerms()
       await app.checkout.submit()
-      await app.checkout.expectResult(/Pedido Aprovado/i)
+
+      await app.checkout.expectResult('Pedido Aprovado!')
     })
   })
 })

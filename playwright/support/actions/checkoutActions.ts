@@ -2,19 +2,6 @@ import { Page, expect } from '@playwright/test'
 
 export function createCheckoutActions(page: Page) {
   const terms = page.getByTestId('checkout-terms')
-  const fillCustomerData = async (data: {
-    name: string
-    lastname: string
-    email: string
-    phone: string
-    document: string
-  }) => {
-    await page.getByTestId('checkout-name').fill(data.name)
-    await page.getByTestId('checkout-lastname').fill(data.lastname)
-    await page.getByTestId('checkout-email').fill(data.email)
-    await page.getByTestId('checkout-phone').fill(data.phone)
-    await page.getByTestId('checkout-document').fill(data.document)
-  }
 
   const alerts = {
     name: page.getByTestId('error-name'),
@@ -47,18 +34,13 @@ export function createCheckoutActions(page: Page) {
       phone: string
       document: string
     }) {
-      await fillCustomerData(data)
+      await page.getByTestId('checkout-name').fill(data.name)
+      await page.getByTestId('checkout-lastname').fill(data.lastname)
+      await page.getByTestId('checkout-email').fill(data.email)
+      await page.getByTestId('checkout-phone').fill(data.phone)
+      await page.getByTestId('checkout-document').fill(data.document)
     },
 
-    async fillCustomerlData(data: {
-      name: string
-      lastname: string
-      email: string
-      phone: string
-      document: string
-    }) {
-      await fillCustomerData(data)
-    },
 
     async selectStore(storeName: string) {
       await page.getByTestId('checkout-store').click()
@@ -79,19 +61,6 @@ export function createCheckoutActions(page: Page) {
 
     async submit() {
       await page.getByRole('button', { name: 'Confirmar Pedido' }).click()
-    },
-
-    async mockCreditAnalysis(score: number) {
-      await page.route('**/functions/v1/credit-analysis', async route => {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            status: 'Done',
-            score,
-          }),
-        })
-      })
     },
 
     async startPurchaseFromHome(linkName: string | RegExp = /Configure (o Seu|Agora)/i) {

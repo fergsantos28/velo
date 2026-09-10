@@ -15,6 +15,14 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
+const vercelAutomationBypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+
+if (!vercelAutomationBypassSecret) {
+  throw new Error(
+    'VERCEL_AUTOMATION_BYPASS_SECRET não foi definida. Adicione o segredo de Protection Bypass for Automation da Vercel ao arquivo .env.',
+  );
+}
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -44,7 +52,13 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
-    baseURL: 'http://localhost:5173/',
+    baseURL: 'https://velo-gizspghvn-fergsantos28s-projects.vercel.app/',
+
+    /* Bypass Vercel Deployment Protection during automated tests. */
+    extraHTTPHeaders: {
+      'x-vercel-protection-bypass': vercelAutomationBypassSecret,
+      'x-vercel-set-bypass-cookie': 'true',
+    },
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on',

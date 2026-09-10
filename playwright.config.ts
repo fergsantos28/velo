@@ -57,7 +57,6 @@ export default defineConfig({
     /* Bypass Vercel Deployment Protection during automated tests. */
     extraHTTPHeaders: {
       'x-vercel-protection-bypass': vercelAutomationBypassSecret,
-      'x-vercel-set-bypass-cookie': 'true',
     },
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */

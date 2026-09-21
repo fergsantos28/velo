@@ -12,6 +12,8 @@ env:
   # Versão do Node utilizada em todo o workflow
   NODE_VERSION: '24'
   VercelToken: ${{ secrets.VERCEL_TOKEN }}
+  VERCEL_PROJECT_ID: 
+  VERCEL_ORG_ID: 
   VercelScope: fergsantos28s-projects
 
 jobs:
@@ -47,8 +49,6 @@ jobs:
      name: Build and Deploy Vercel
      needs: unit-tests
      runs-on: ubuntu-latest
-     # Deploys automaticos sao desativados; execute pelo CLI apenas quando necessario.
-     if: ${{ false }}
     steps:
       # 1. Faz checkout do código do repositório
       - name: Checkout repository

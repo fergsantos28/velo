@@ -52,7 +52,8 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
-    baseURL: 'https://velo-bfu5fchdo-fergsantos28s-projects.vercel.app/',
+    baseURL: 'https://velo-nfwhuft3j-fergsantos28s-projects.vercel.app/',
+    /* 'https://velo-bfu5fchdo-fergsantos28s-projects.vercel.app/ */
 
     /* Bypass Vercel Deployment Protection during automated tests. */
     extraHTTPHeaders: {

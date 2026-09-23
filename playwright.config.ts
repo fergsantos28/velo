@@ -48,13 +48,18 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  reporter: [
+    ['html', { outputDir: './playwright-report' }],
+    ['json', { outputFile: './playwright-report/report.json' }],
+   
+  ],
+
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
     baseURL: process.env.BASE_URL || 'http://localhost:5173',
-    /*  'https://velo-q5w3pgi8h-fergsantos28s-projects.vercel.app/', /* url PREVIEW */ 
-  
+    /*  'https://velo-q5w3pgi8h-fergsantos28s-projects.vercel.app/', /* url PREVIEW */
+
 
     /* Bypass Vercel Deployment Protection during automated tests. */
     extraHTTPHeaders: {
@@ -112,9 +117,9 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
- webServer: {
-   command: 'yarn dev',
+  webServer: {
+    command: 'yarn dev',
     url: 'http://localhost:5173',
-     reuseExistingServer: !process.env.CI,
-   },
+    reuseExistingServer: !process.env.CI,
+  },
 });

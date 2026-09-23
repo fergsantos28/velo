@@ -127,3 +127,8 @@ jobs:
         with:
           name: playwright-report
           path: playwright-report
+
+      # 8. Publicar report JSON do TestDino
+      - name: Publish Testdino Report
+        if: ${{ !cancelled() }}
+        run: npx tdpw test --token=${{ secrets.TD_TOKEN }}

@@ -50,7 +50,8 @@ export default defineConfig({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
     ['html', { outputDir: './playwright-report' }],
-    ['json', { outputFile: './playwright-report/report.json' }],
+    ['@testdino/playwright', { token: process.env.TESTDINO_TOKEN }],
+    /* ['json', { outputFile: './playwright-report/report.json' }], */
    
   ],
 

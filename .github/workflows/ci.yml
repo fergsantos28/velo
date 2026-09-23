@@ -15,6 +15,8 @@ env:
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_SCOPE: fergsantos28s-projects
+  TD_TOKEN:  ${{ secrets.TD_TOKEN}}
+  
 
 jobs:
   unit-tests:
@@ -114,9 +116,9 @@ jobs:
       - name: Install Playwright Browser
         run: yarn playwright install --with-deps chromium
 
-      # 6. Execução dos Testes de Regressão
+      # 6. Executa os testes de regressão e envia o report para o TestDino
       - name: Run E2E Regression Tests
-        run: yarn playwright test 
+        run: npx tdpw test --token=$TD_TOKEN
         env:
           BASE_URL: ${{ needs.build-and-deploy.outputs.deployment-url }}
 
@@ -128,7 +130,4 @@ jobs:
           name: playwright-report
           path: playwright-report
 
-           # 8. Publicar report JSON do TestDino
-      - name: Publish Testdino Report
-        if: ${{ !cancelled() }}
-        run: npx tdpw upload ./playwright-report --token="${{ secrets.TD_TOKEN }}"
+         

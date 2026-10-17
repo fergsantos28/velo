@@ -80,6 +80,19 @@ yarn supabase functions deploy
 
 Pronto! O banco e as functions estarão configurados.
 
+### 4. Ambientes Preview e Produção
+
+O projeto utiliza dois projetos Supabase: `Velo` para produção e `velo-sprint-preview` para previews e testes E2E. Antes de aplicar migrations ou publicar Functions, vincule explicitamente o projeto desejado e confirme o vínculo:
+
+```bash
+yarn supabase link --project-ref <project-ref-do-ambiente>
+yarn supabase projects list
+```
+
+Em seguida, execute `yarn supabase db push` e `yarn supabase functions deploy credit-analysis`.
+
+Na Vercel, configure `VITE_SUPABASE_URL`, `VITE_SUPABASE_PROJECT_ID` e `VITE_SUPABASE_PUBLISHABLE_KEY` separadamente para Preview e Production. O pipeline gera um build preview para os E2E e, somente após sucesso, gera um novo build de produção. Isso é necessário porque variáveis `VITE_*` são incorporadas ao bundle no build; um build preview nunca é promovido diretamente para produção.
+
 ---
 
 ## Estrutura Principal

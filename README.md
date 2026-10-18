@@ -1,99 +1,91 @@
-# Velô Sprint - Configurador de Veículo Elétrico
+# Velô Sprint
 
-Aplicação web em React para configuração e compra do veículo elétrico **Velô Sprint**.
+> Configurador e fluxo de compra de um veículo elétrico, com análise de crédito, acompanhamento de pedidos e pipeline de entrega contínua com ambientes isolados.
+
+## Acesse a Aplicação
+
+- [Produção](https://velo-htw3nbcuo-fergsantos28s-projects.vercel.app/)
+- [Preview](https://velo-41hhra21x-fergsantos28s-projects.vercel.app/)
+
+> O ambiente de Preview é destinado a validações automatizadas e pode conter dados de teste.
+
+---
 
 ## Sobre o Projeto
 
-Uma SPA (Single Page Application) que permite:
-- Personalizar cores, rodas e opcionais do veículo
-- Calcular preços em tempo real
-- Realizar pedidos com análise de crédito
-- Consultar status de pedidos
+Uma SPA (Single Page Application) que simula a jornada de compra do **Velô Sprint**: da personalização do veículo à confirmação do pedido.
 
-**Especificações do Velô Sprint:** 450 km de autonomia | 0-100 km/h em 3.2s | 500 cv
+**Especificações do veículo:** 450 km de autonomia | 0–100 km/h em 3,2 s | 500 cv
+
+### Funcionalidades
+
+- Personalização de cor, rodas e opcionais
+- Cálculo de preço em tempo real
+- Checkout com pagamento à vista ou financiamento
+- Análise de crédito por Edge Function
+- Consulta do status de pedidos
+- Validações de formulário e feedbacks de interface
 
 ---
+
+
 
 ## Stack Tecnológica
 
-| Categoria | Tecnologias |
-|-----------|-------------|
-| **Frontend** | React 18, TypeScript, Vite, Tailwind CSS, shadcn/ui |
-| **Estado** | Zustand (global), React Hook Form (formulários) |
-| **Validação** | Zod |
-| **Data Fetching** | TanStack Query |
-| **Backend** | Supabase (PostgreSQL + Edge Functions) |
+
+| Categoria         | Tecnologias                                         |
+| ----------------- | --------------------------------------------------- |
+| **Frontend**      | React 18, TypeScript, Vite, Tailwind CSS, shadcn/ui |
+| **Estado**        | Zustand (global), React Hook Form (formulários)     |
+| **Validação**     | Zod                                                 |
+| **Data Fetching** | TanStack Query                                      |
+| **Backend**       | Supabase (PostgreSQL + Edge Functions)              |
+
 
 ---
 
-## Instalação
+
+
+## Executar Localmente
 
 ```bash
 # Instalar dependências
 yarn install
 
 # Rodar em desenvolvimento
-yarn run dev
+yarn dev
 ```
 
 Acesse: `http://localhost:5173`
 
 ---
 
-## Configuração do Supabase
 
-### 1. Criar Projeto
 
-1. Acesse [supabase.com](https://supabase.com) e crie uma conta
-2. Clique em **New Project**
-3. Escolha um nome e senha para o banco
-4. Aguarde a criação (~2 minutos)
+## Arquitetura e Qualidade
 
-### 2. Variáveis de Ambiente
-
-Crie o arquivo `.env` na raiz do projeto:
-
-```env
-VITE_SUPABASE_PROJECT_ID="seu_project_id"
-VITE_SUPABASE_PUBLISHABLE_KEY="sua_chave_anon_publica"
-VITE_SUPABASE_URL="https://seu_project_id.supabase.co"
+```text
+React + Vite → Supabase (PostgreSQL) → Edge Function de análise de crédito
+                    ↑
+           Playwright E2E / CI-CD na Vercel
 ```
 
-> Encontre essas informações em: **Project Settings → API**
 
-### 3. Deploy (banco + functions)
 
-```bash
-# Instalar CLI
-yarn add supabase -D
+### Entrega Contínua
 
-# Login e vincular projeto
-yarn supabase login
-yarn supabase link --project-ref puckdfygjxyzzlmyremu
+O pipeline executa o seguinte fluxo:
 
-# Aplicar migrações (cria tabelas e RLS)
-yarn supabase db push
+1. Testes unitários
+2. Build e deploy Preview na Vercel
+3. Testes E2E do Playwright contra a URL Preview
+4. Novo build e deploy de Production somente após a aprovação dos E2E
 
-# Deploy das Edge Functions
-yarn supabase functions deploy
-```
-
-Pronto! O banco e as functions estarão configurados.
-
-### 4. Ambientes Preview e Produção
-
-O projeto utiliza dois projetos Supabase: `Velo` para produção e `velo-sprint-preview` para previews e testes E2E. Antes de aplicar migrations ou publicar Functions, vincule explicitamente o projeto desejado e confirme o vínculo:
-
-```bash
-yarn supabase link --project-ref <project-ref-do-ambiente>
-yarn supabase projects list
-```
-
-Em seguida, execute `yarn supabase db push` e `yarn supabase functions deploy credit-analysis`.
-
-Na Vercel, configure `VITE_SUPABASE_URL`, `VITE_SUPABASE_PROJECT_ID` e `VITE_SUPABASE_PUBLISHABLE_KEY` separadamente para Preview e Production. O pipeline gera um build preview para os E2E e, somente após sucesso, gera um novo build de produção. Isso é necessário porque variáveis `VITE_*` são incorporadas ao bundle no build; um build preview nunca é promovido diretamente para produção.
+Os ambientes utilizam projetos Supabase separados. Assim, os testes criam e removem dados somente no banco Preview, sem afetar a produção.
 
 ---
+
+
 
 ## Estrutura Principal
 
@@ -111,17 +103,23 @@ src/
 
 ---
 
+
+
 ## Rotas
 
-| Rota | Descrição |
-|------|-----------|
-| `/` | Landing page |
+
+| Rota         | Descrição               |
+| ------------ | ----------------------- |
+| `/`          | Landing page            |
 | `/configure` | Configurador do veículo |
-| `/order` | Checkout/Pedido |
-| `/success` | Confirmação do pedido |
-| `/lookup` | Consulta de pedidos |
+| `/order`     | Checkout/Pedido         |
+| `/success`   | Confirmação do pedido   |
+| `/lookup`    | Consulta de pedidos     |
+
 
 ---
+
+
 
 ## Modelo de Preços
 
@@ -133,9 +131,12 @@ src/
 
 ---
 
+
+
 ## Banco de Dados
 
-**Tabela `orders`** — campos principais:
+**Tabela** `orders` — campos principais:
+
 - `order_number` — Formato: VLO-XXXXXX
 - `color`, `wheel_type`, `optionals` — Configuração
 - `customer_name`, `customer_email`, `customer_cpf` — Cliente
@@ -144,17 +145,23 @@ src/
 
 ---
 
+
+
 ## Análise de Crédito
 
-| Score | Resultado |
-|-------|-----------|
-| > 700 | Aprovado |
+
+| Score   | Resultado  |
+| ------- | ---------- |
+| > 700   | Aprovado   |
 | 501-700 | Em análise |
-| ≤ 500 | Reprovado |
+| ≤ 500   | Reprovado  |
+
 
 *Se entrada ≥ 50% do total, aprova mesmo com score < 700*
 
 ---
+
+
 
 ## Fluxo Principal
 
@@ -164,10 +171,14 @@ Landing → Configurador → Checkout → Análise de Crédito → Confirmação
 
 ---
 
+
+
 ## Scripts
 
 ```bash
-npm run dev      # Desenvolvimento
-npm run build    # Build de produção
-npm run lint     # Verificar código
+yarn dev         # Desenvolvimento
+yarn build       # Build de produção
+yarn test        # Testes unitários
+yarn lint        # Verificar código
 ```
+
